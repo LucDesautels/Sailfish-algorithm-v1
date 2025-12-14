@@ -1,4 +1,4 @@
-# streamlit_drone_spiral_plotly.py
+# streamlit_drone_spiral_smooth.py
 
 import streamlit as st
 import numpy as np
@@ -35,11 +35,13 @@ C0_y = st.sidebar.number_input("Datum start Y (m)", value=0.0)
 # 2️⃣ Spiral / path functions
 # -----------------------------
 def theta_derivative(theta, U, r, b):
-    # Placeholder: constant airspeed along spiral
+    """Compute dtheta/dt for the spiral given radius r(theta)."""
     return U / np.sqrt(r**2 + b**2)
 
 def compute_spiral(t_span, params):
+    """Compute spiral path using ODE solver."""
     U, r0, b, v_c, C0 = params['U'], params['r0'], params['b'], params['v_c'], params['C0']
+    
     def ode(t, y):
         x, y_pos, theta = y
         r = r0 + b*theta
@@ -49,20 +51,22 @@ def compute_spiral(t_span, params):
         dy_dt = dr_dt*np.sin(theta) + r*dtheta_dt*np.cos(theta) + v_c[1]
         return [dx_dt, dy_dt, dtheta_dt]
     
-    y0 = [0, 0, 0]
+    y0 = [0, 0, 0]  # starting relative to datum
     sol = solve_ivp(ode, t_span, y0, max_step=1.0)
     x = sol.y[0] + C0[0]
     y_pos = sol.y[1] + C0[1]
     return sol.t, x, y_pos
 
 def compute_full_path(params):
+    """Compute outbound, spiral, and return legs as full path."""
     H = params['H']
     C0 = params['C0']
     U = params['U']
-    v_w = params['v_w']
     v_c = params['v_c']
     Tmax = params['Tmax']
     t_delay = params['t_delay']
+    r0 = params['r0']
+    b = params['b']
 
     # Outbound leg
     d_out = np.linalg.norm(C0 - H)
@@ -81,12 +85,12 @@ def compute_full_path(params):
     x_back = x_spiral[-1] + (H[0]-x_spiral[-1])*(t_back-t_spiral[-1])/T_back
     y_back = y_spiral[-1] + (H[1]-y_spiral[-1])*(t_back-t_spiral[-1])/T_back
 
-    # Concatenate
+    # Concatenate full path
     t_full = np.concatenate([t_out, t_spiral, t_back])
     x_full = np.concatenate([x_out, x_spiral, x_back])
     y_full = np.concatenate([y_out, y_spiral, y_back])
 
-    # Index ranges for phases
+    # Index ranges
     outbound_idx = slice(0, len(t_out))
     spiral_idx = slice(len(t_out), len(t_out)+len(t_spiral))
     return_idx = slice(len(t_out)+len(t_spiral), len(t_full))
@@ -94,12 +98,11 @@ def compute_full_path(params):
     return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx
 
 # -----------------------------
-# 3️⃣ Precompute full path
+# 3️⃣ Precompute full path once
 # -----------------------------
 params = {
     'U': U, 'r0': r0, 'b': b,
     'v_c': np.array([current_x, current_y]),
-    'v_w': np.array([wind_x, wind_y]),
     'C0': np.array([C0_x, C0_y]),
     'H': np.array([H_x, H_y]),
     'Tmax': Tmax,
@@ -109,52 +112,48 @@ params = {
 t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx = compute_full_path(params)
 
 # -----------------------------
-# 4️⃣ Time slider
+# 4️⃣ Streamlit interactive slider
 # -----------------------------
 t_now = st.slider("Time (s)", float(t_full[0]), float(t_full[-1]), float(t_full[0]), step=1.0)
 i = np.searchsorted(t_full, t_now)
 
 # -----------------------------
-# 5️⃣ Plot with Plotly
+# 5️⃣ Plotly FigureWidget for smooth updates
 # -----------------------------
-fig = go.Figure()
+fig = go.FigureWidget()
 
-# Entire path gray for reference
-fig.add_trace(go.Scatter(
-    x=x_full, y=y_full, mode='lines', line=dict(color='gray', dash='dot'), name='Full path'
-))
+# Draw full path once
+fig.add_scatter(x=x_full, y=y_full, mode='lines', line=dict(color='gray', dash='dot'), name='Full path')
 
-# Outbound / spiral / return separately
-fig.add_trace(go.Scatter(
-    x=x_full[outbound_idx], y=y_full[outbound_idx], mode='lines', line=dict(color='blue', dash='dash'), name='Outbound'
-))
-fig.add_trace(go.Scatter(
-    x=x_full[spiral_idx], y=y_full[spiral_idx], mode='lines', line=dict(color='blue'), name='Spiral'
-))
-fig.add_trace(go.Scatter(
-    x=x_full[return_idx], y=y_full[return_idx], mode='lines', line=dict(color='blue', dash='dot'), name='Return'
-))
+# Separate legs for clarity
+fig.add_scatter(x=x_full[outbound_idx], y=y_full[outbound_idx], mode='lines', line=dict(color='blue', dash='dash'), name='Outbound')
+fig.add_scatter(x=x_full[spiral_idx], y=y_full[spiral_idx], mode='lines', line=dict(color='blue'), name='Spiral')
+fig.add_scatter(x=x_full[return_idx], y=y_full[return_idx], mode='lines', line=dict(color='blue', dash='dot'), name='Return')
 
-# Drone marker
-fig.add_trace(go.Scatter(
-    x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=10), name='Drone'
-))
+# Drone marker (red)
+drone_marker = fig.add_scatter(x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=10), name='Drone')
 
-# Home & datum
-fig.add_trace(go.Scatter(
-    x=[H_x], y=[H_y], mode='markers', marker=dict(color='black', size=10, symbol='square'), name='Home'
-))
-fig.add_trace(go.Scatter(
-    x=[C0_x], y=[C0_y], mode='markers', marker=dict(color='black', size=12, symbol='star'), name='Datum start'
-))
+# Home & Datum
+fig.add_scatter(x=[H_x], y=[H_y], mode='markers', marker=dict(color='black', size=10, symbol='square'), name='Home')
+fig.add_scatter(x=[C0_x], y=[C0_y], mode='markers', marker=dict(color='black', size=12, symbol='star'), name='Datum start')
 
 fig.update_layout(
-    title="Interactive Drone Mission (Plotly)",
+    title="Smooth Drone Mission Animation",
     xaxis_title="X (m)",
     yaxis_title="Y (m)",
     yaxis=dict(scaleanchor="x", scaleratio=1),
     legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
     height=700
 )
+
+# -----------------------------
+# 6️⃣ Update drone marker dynamically
+# -----------------------------
+def update_marker(val):
+    i = np.searchsorted(t_full, val)
+    drone_marker.x = [x_full[i]]
+    drone_marker.y = [y_full[i]]
+
+update_marker(t_now)
 
 st.plotly_chart(fig, use_container_width=True)
