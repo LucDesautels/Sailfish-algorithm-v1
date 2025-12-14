@@ -1,11 +1,9 @@
-# -----------------------------
-# streamlit_drone_spiral.py
-# -----------------------------
+# streamlit_drone_spiral_plotly.py
 
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 
@@ -37,7 +35,7 @@ C0_y = st.sidebar.number_input("Datum start Y (m)", value=0.0)
 # 2️⃣ Spiral / path functions
 # -----------------------------
 def theta_derivative(theta, U, r, b):
-    # simple placeholder: constant airspeed along spiral
+    # Placeholder: constant airspeed along spiral
     return U / np.sqrt(r**2 + b**2)
 
 def compute_spiral(t_span, params):
@@ -114,34 +112,49 @@ t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx = compute_full_path
 # 4️⃣ Time slider
 # -----------------------------
 t_now = st.slider("Time (s)", float(t_full[0]), float(t_full[-1]), float(t_full[0]), step=1.0)
-
 i = np.searchsorted(t_full, t_now)
 
 # -----------------------------
-# 5️⃣ Plot
+# 5️⃣ Plot with Plotly
 # -----------------------------
-fig, ax = plt.subplots(figsize=(10,8))
+fig = go.Figure()
 
-# Already passed path
-ax.plot(x_full[:i], y_full[:i], 'b', label='Traveled')
+# Entire path gray for reference
+fig.add_trace(go.Scatter(
+    x=x_full, y=y_full, mode='lines', line=dict(color='gray', dash='dot'), name='Full path'
+))
 
-# Future path grayed
-ax.plot(x_full[i:], y_full[i:], 'gray', linestyle='dotted', label='Future')
-
-# Phases visualization
-ax.plot(x_full[outbound_idx], y_full[outbound_idx], 'b--', label='Outbound')
-ax.plot(x_full[spiral_idx], y_full[spiral_idx], 'b-', label='Spiral')
-ax.plot(x_full[return_idx], y_full[return_idx], 'b:', label='Return')
+# Outbound / spiral / return separately
+fig.add_trace(go.Scatter(
+    x=x_full[outbound_idx], y=y_full[outbound_idx], mode='lines', line=dict(color='blue', dash='dash'), name='Outbound'
+))
+fig.add_trace(go.Scatter(
+    x=x_full[spiral_idx], y=y_full[spiral_idx], mode='lines', line=dict(color='blue'), name='Spiral'
+))
+fig.add_trace(go.Scatter(
+    x=x_full[return_idx], y=y_full[return_idx], mode='lines', line=dict(color='blue', dash='dot'), name='Return'
+))
 
 # Drone marker
-ax.plot(x_full[i], y_full[i], 'ro', markersize=8)
+fig.add_trace(go.Scatter(
+    x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=10), name='Drone'
+))
 
 # Home & datum
-ax.plot(H_x, H_y, 'ks', label='Home')
-ax.plot(C0_x, C0_y, 'k*', label='Datum start')
+fig.add_trace(go.Scatter(
+    x=[H_x], y=[H_y], mode='markers', marker=dict(color='black', size=10, symbol='square'), name='Home'
+))
+fig.add_trace(go.Scatter(
+    x=[C0_x], y=[C0_y], mode='markers', marker=dict(color='black', size=12, symbol='star'), name='Datum start'
+))
 
-ax.set_aspect('equal')
-ax.grid(True)
-ax.legend()
-ax.set_title("Interactive Drone Mission")
-st.pyplot(fig)
+fig.update_layout(
+    title="Interactive Drone Mission (Plotly)",
+    xaxis_title="X (m)",
+    yaxis_title="Y (m)",
+    yaxis=dict(scaleanchor="x", scaleratio=1),
+    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    height=700
+)
+
+st.plotly_chart(fig, use_container_width=True)
