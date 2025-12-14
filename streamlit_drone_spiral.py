@@ -142,12 +142,12 @@ fig = go.Figure(
 fig.update_layout(
     xaxis=dict(
         showgrid=True,
-        gridcolor="lightgray",
+        gridcolor="gray",
         gridwidth=1
     ),
     yaxis=dict(
         showgrid=True,
-        gridcolor="lightgray",
+        gridcolor="gray",
         gridwidth=1
     )
 )
