@@ -139,5 +139,16 @@ fig = go.Figure(
     ),
     frames=frames
 )
-
+fig.update_layout(
+    xaxis=dict(
+        showgrid=True,
+        gridcolor="lightgray",
+        gridwidth=1
+    ),
+    yaxis=dict(
+        showgrid=True,
+        gridcolor="lightgray",
+        gridwidth=1
+    )
+)
 st.plotly_chart(fig, width='stretch', height=800)
