@@ -115,7 +115,7 @@ for i in range(len(t_full)):
     # Past path gray, future path light gray
     frames.append(go.Frame(
         data=[
-            go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='blue'), marker=dict(size=8)),
+            go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='blue'), marker=dict(size=2)),
             go.Scatter(x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=12))
         ],
         name=str(i)
@@ -131,7 +131,7 @@ fig = go.Figure(
         go.Scatter(x=[C0_x], y=[C0_y], mode='markers', marker=dict(color='black', size=12, symbol='star'), name='Datum start')
     ],
     layout=go.Layout(
-        title="Drone Spiral Mission Animation",
+        title="Drone Spiral Animation",
         xaxis=dict(title="X (m)", scaleanchor="y", scaleratio=1),
         yaxis=dict(title="Y (m)"),
         updatemenus=[dict(type="buttons",
@@ -140,4 +140,4 @@ fig = go.Figure(
     frames=frames
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True, use_container_height=True)
