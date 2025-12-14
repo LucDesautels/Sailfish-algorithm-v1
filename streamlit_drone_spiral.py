@@ -140,4 +140,4 @@ fig = go.Figure(
     frames=frames
 )
 
-st.plotly_chart(fig, width='stretch', height='stretch')
+st.plotly_chart(fig, width='stretch', height=900)
