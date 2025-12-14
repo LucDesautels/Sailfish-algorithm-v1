@@ -115,7 +115,7 @@ for i in range(len(t_full)):
     # Past path gray, future path light gray
     frames.append(go.Frame(
         data=[
-            go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='blue'), marker=dict(size=2)),
+            go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='red'), marker=dict(size=4)),
             go.Scatter(x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=12))
         ],
         name=str(i)
