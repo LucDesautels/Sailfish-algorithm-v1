@@ -5,7 +5,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import plotly.graph_objects as go
 
-st.set_page_config(layout="stretch")
+st.set_page_config(layout="wide")
 
 # -----------------------------
 # 1️⃣ User Inputs
@@ -140,4 +140,4 @@ fig = go.Figure(
     frames=frames
 )
 
-st.plotly_chart(fig, height='stretch')
+st.plotly_chart(fig, width='stretch', height='stretch')
