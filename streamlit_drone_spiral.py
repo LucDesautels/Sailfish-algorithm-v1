@@ -31,6 +31,7 @@ H_y = st.sidebar.number_input("Home Y (m)", value=15.0)
 C0_x = st.sidebar.number_input("Datum start X (m)", value=10.0)
 C0_y = st.sidebar.number_input("Datum start Y (m)", value=0.0)
 
+
 # -----------------------------
 # 2️⃣ Spiral / path functions
 # -----------------------------
@@ -54,6 +55,21 @@ def compute_spiral(t_span, params):
     x = sol.y[0] + C0[0]
     y_pos = sol.y[1] + C0[1]
     return sol.t, x, y_pos
+    
+def compute_base_spiral(T, U, r0, b):
+    def ode(t, y):
+        x, y_pos, theta = y
+        r = r0 + b * theta
+        dtheta_dt = U / np.sqrt(r**2 + b**2)
+        dr_dt = b * dtheta_dt
+
+        dx_dt = dr_dt*np.cos(theta) - r*dtheta_dt*np.sin(theta)
+        dy_dt = dr_dt*np.sin(theta) + r*dtheta_dt*np.cos(theta)
+
+        return [dx_dt, dy_dt, dtheta_dt]
+
+    sol = solve_ivp(ode, (0, T), [0, 0, 0], max_step=1.0)
+    return sol.t, sol.y[0], sol.y[1]
 
 def compute_full_path(params):
     H = params['H']
@@ -95,9 +111,17 @@ def compute_full_path(params):
 
 
 
+
+
     outbound_idx = slice(0, len(t_out))
     spiral_idx = slice(len(t_out), len(t_out)+len(t_spiral))
     return_idx = slice(len(t_out)+len(t_spiral), len(t_full))
+    t_base, x_base, y_base = compute_base_spiral(
+        T=0.6 * Tmax,
+        U=U,
+        r0=r0,
+        b=b
+    )
 
     return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel
 
@@ -133,15 +157,16 @@ frames = []
 for i in range(len(t_full)):
     frames.append(go.Frame(
         data=[
-            # Full past path of drone
+            # Actual drone path (world frame)
             go.Scatter(
                 x=x_full[:i+1],
                 y=y_full[:i+1],
                 mode='lines',
-                line=dict(color='blue')
+                line=dict(color='blue'),
+                name="Drone path"
             ),
 
-            # Drone position
+            # Drone marker
             go.Scatter(
                 x=[x_full[i]],
                 y=[y_full[i]],
@@ -150,17 +175,27 @@ for i in range(len(t_full)):
                 name="Drone"
             ),
 
-            # Datum position (MOVING)
+            # Datum marker
             go.Scatter(
                 x=[C_x[i]],
                 y=[C_y[i]],
                 mode='markers',
                 marker=dict(color='green', size=10, symbol='x'),
                 name="Datum"
+            ),
+
+            #  PURE spiral translated by datum
+            go.Scatter(
+                x=x_base + C_x[i],
+                y=y_base + C_y[i],
+                mode='lines',
+                line=dict(color='gray', dash='dot'),
+                name="Ideal spiral (datum frame)"
             )
         ],
         name=str(i)
     ))
+
 
     
 # -----------------------------
@@ -193,14 +228,8 @@ fig = go.Figure(
             mode='markers',
             marker=dict(color='green', size=10, symbol='x'),
             name='Datum'
-        ),
-        go.Scatter(
-            x=x_rel + C_x,
-            y=y_rel + C_y,
-            mode='lines',
-            line=dict(color='gray', dash='dot'),
-            name='Spiral (datum frame)'
-         )
+        )
+    
 
     ],
     layout=go.Layout(
