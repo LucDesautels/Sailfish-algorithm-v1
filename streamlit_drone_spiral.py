@@ -157,40 +157,28 @@ frames = []
 for i in range(len(t_full)):
     frames.append(go.Frame(
         data=[
-            # Actual drone path (world frame)
+            # 0️⃣ Drone path up to time i
             go.Scatter(
                 x=x_full[:i+1],
-                y=y_full[:i+1],
-                mode='lines',
-                line=dict(color='blue'),
-                name="Drone path"
+                y=y_full[:i+1]
             ),
 
-            # Drone marker
+            # 1️⃣ Drone marker
             go.Scatter(
                 x=[x_full[i]],
-                y=[y_full[i]],
-                mode='markers',
-                marker=dict(color='red', size=12),
-                name="Drone"
+                y=[y_full[i]]
             ),
 
-            # Datum marker
+            # 2️⃣ Datum marker
             go.Scatter(
                 x=[C_x[i]],
-                y=[C_y[i]],
-                mode='markers',
-                marker=dict(color='green', size=10, symbol='x'),
-                name="Datum"
+                y=[C_y[i]]
             ),
 
-            #  PURE spiral translated by datum
+            # 3️⃣ Ideal spiral translated rigidly
             go.Scatter(
                 x=x_base + C_x[i],
-                y=y_base + C_y[i],
-                mode='lines',
-                line=dict(color='gray', dash='dot'),
-                name="Ideal spiral (datum frame)"
+                y=y_base + C_y[i]
             )
         ],
         name=str(i)
@@ -260,6 +248,7 @@ fig = go.Figure(
 
 ## RE Add Here.
 
+fig.frames = frames
 
 fig.update_layout(
     xaxis=dict(
