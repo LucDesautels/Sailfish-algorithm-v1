@@ -123,7 +123,7 @@ def compute_full_path(params):
         b=b
     )
 
-    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel
+    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel, x_base, y_base
 
 # -----------------------------
 # 3️⃣ Precompute full path
@@ -137,7 +137,7 @@ params = {
     't_delay': t_delay
 }
 
-t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel = compute_full_path(params)
+t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel, x_base, y_base= compute_full_path(params)
 
 # -----------------------------
 # 4️⃣ Create Plotly animation frames
