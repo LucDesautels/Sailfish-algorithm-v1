@@ -89,13 +89,17 @@ def compute_full_path(params):
     
     C_x = C0_x + current_x * t_full
     C_y = C0_y + current_y * t_full
+    # Drone position relative to datum
+    x_rel = x_full - C_x
+    y_rel = y_full - C_y
+
 
 
     outbound_idx = slice(0, len(t_out))
     spiral_idx = slice(len(t_out), len(t_out)+len(t_spiral))
     return_idx = slice(len(t_out)+len(t_spiral), len(t_full))
 
-    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y
+    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel
 
 # -----------------------------
 # 3️⃣ Precompute full path
@@ -109,7 +113,7 @@ params = {
     't_delay': t_delay
 }
 
-t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y = compute_full_path(params)
+t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel = compute_full_path(params)
 
 # -----------------------------
 # 4️⃣ Create Plotly animation frames
@@ -190,6 +194,16 @@ fig = go.Figure(
             marker=dict(color='green', size=10, symbol='x'),
             name='Datum'
         ),
+        fig.add_trace(
+    go.Scatter(
+        x=x_rel + C_x,
+        y=y_rel + C_y,
+        mode='lines',
+        line=dict(color='gray', dash='dot'),
+        name='Spiral (datum frame)'
+    )
+)
+
     ],
     layout=go.Layout(
         title="Drone Spiral with Moving Datum",
