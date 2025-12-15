@@ -200,8 +200,7 @@ fig = go.Figure(
             mode='lines',
             line=dict(color='gray', dash='dot'),
             name='Spiral (datum frame)'
-    )
-)
+         )
 
     ],
     layout=go.Layout(
