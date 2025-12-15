@@ -14,21 +14,21 @@ st.sidebar.header("Parameters")
 
 U = st.sidebar.slider("Airspeed (m/s)", 5.0, 25.0, 14.0, 0.5)
 Tmax = st.sidebar.slider("Max flight time (s)", 600, 3600, 1800, 60)
-t_delay = st.sidebar.slider("Takeoff delay (s)", 0, 300, 60, 10)
+t_delay = st.sidebar.slider("Takeoff delay (s)", 0, 300, 0, 10)
 
-wind_x = st.sidebar.slider("Wind X (m/s)", -5.0, 5.0, 2.0, 0.1)
+wind_x = st.sidebar.slider("Wind X (m/s)", -5.0, 5.0, 0.0, 0.1)
 wind_y = st.sidebar.slider("Wind Y (m/s)", -5.0, 5.0, 0.0, 0.1)
 
-current_x = st.sidebar.slider("Current X (m/s)", -2.0, 2.0, 0.5, 0.05)
-current_y = st.sidebar.slider("Current Y (m/s)", -2.0, 2.0, 0.4, 0.05)
+current_x = st.sidebar.slider("Current X (m/s)", -2.0, 2.0, -2.0, 0.05)
+current_y = st.sidebar.slider("Current Y (m/s)", -2.0, 2.0, 0.5, 0.05)
 
-r0 = st.sidebar.slider("Spiral base radius r₀ (m)", 0, 50, 20, 1)
+r0 = st.sidebar.slider("Spiral base radius r₀ (m)", 0, 50, 0, 1)
 b = st.sidebar.slider("Spiral sweep per rev b (m/rad)", 10, 100, 30, 1)
 
-H_x = st.sidebar.number_input("Home X (m)", value=-300.0)
-H_y = st.sidebar.number_input("Home Y (m)", value=15.0)
+H_x = st.sidebar.number_input("Home X (m)", value=0)
+H_y = st.sidebar.number_input("Home Y (m)", value=0)
 
-C0_x = st.sidebar.number_input("Datum start X (m)", value=10.0)
+C0_x = st.sidebar.number_input("Datum start X (m)", value=0)
 C0_y = st.sidebar.number_input("Datum start Y (m)", value=0.0)
 
 
