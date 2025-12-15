@@ -203,34 +203,41 @@ for i in range(len(t_full)):
 # -----------------------------
 fig = go.Figure(
     data=[
-        # Full planned path
+        # 0️⃣ Actual drone path (initially empty)
         go.Scatter(
-            x=x_full,
-            y=y_full,
+            x=[],
+            y=[],
             mode='lines',
-            line=dict(color='gray', dash='dot'),
-            name='Planned path'
+            line=dict(color='blue'),
+            name="Drone path"
         ),
 
-        # Home
+        # 1️⃣ Drone marker
         go.Scatter(
-            x=[H_x],
-            y=[H_y],
+            x=[x_full[0]],
+            y=[y_full[0]],
             mode='markers',
-            marker=dict(color='black', size=10, symbol='square'),
-            name='Home'
+            marker=dict(color='red', size=12),
+            name="Drone"
         ),
 
-        # Initial datum position
+        # 2️⃣ Datum marker
         go.Scatter(
-            x=[C0_x],
-            y=[C0_y],
+            x=[C_x[0]],
+            y=[C_y[0]],
             mode='markers',
             marker=dict(color='green', size=10, symbol='x'),
-            name='Datum'
-        )
-    
+            name="Datum"
+        ),
 
+        # 3️⃣ Ideal spiral (datum frame, initial position)
+        go.Scatter(
+            x=x_base + C_x[0],
+            y=y_base + C_y[0],
+            mode='lines',
+            line=dict(color='gray', dash='dot'),
+            name="Ideal spiral (datum frame)"
+        )
     ],
     layout=go.Layout(
         title="Drone Spiral with Moving Datum",
@@ -244,14 +251,13 @@ fig = go.Figure(
                 method="animate",
                 args=[None, {
                     "frame": {"duration": 50, "redraw": True},
-                    "fromcurrent": True,
-                    "mode": "immediate"
+                    "fromcurrent": True
                 }]
             )]
         )]
-    ),
-    frames=frames
+    )
 )
+
 ## RE Add Here.
 
 
