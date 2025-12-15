@@ -95,7 +95,7 @@ def compute_full_path(params):
     spiral_idx = slice(len(t_out), len(t_out)+len(t_spiral))
     return_idx = slice(len(t_out)+len(t_spiral), len(t_full))
 
-    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx
+    return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y
 
 # -----------------------------
 # 3️⃣ Precompute full path
