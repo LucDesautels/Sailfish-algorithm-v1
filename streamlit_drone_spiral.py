@@ -109,7 +109,7 @@ params = {
     't_delay': t_delay
 }
 
-t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx = compute_full_path(params)
+t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y = compute_full_path(params)
 
 # -----------------------------
 # 4️⃣ Create Plotly animation frames
