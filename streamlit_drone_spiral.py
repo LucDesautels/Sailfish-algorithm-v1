@@ -86,6 +86,10 @@ def compute_full_path(params):
     t_full = np.concatenate([t_out, t_spiral, t_back])
     x_full = np.concatenate([x_out, x_spiral, x_back])
     y_full = np.concatenate([y_out, y_spiral, y_back])
+    
+    C_x = C0_x + current_x * t_full
+    C_y = C0_y + current_y * t_full
+
 
     outbound_idx = slice(0, len(t_out))
     spiral_idx = slice(len(t_out), len(t_out)+len(t_spiral))
@@ -110,17 +114,51 @@ t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx = compute_full_path
 # -----------------------------
 # 4️⃣ Create Plotly animation frames
 # -----------------------------
+
+#frames = []
+#for i in range(len(t_full)):
+#    # Past path gray, future path light gray
+ #   frames.append(go.Frame(
+  #      data=[
+   #         go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='red'), marker=dict(size=4)),
+    #        go.Scatter(x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=12))
+     #   ],
+      #  name=str(i)
+   # ))
 frames = []
 for i in range(len(t_full)):
-    # Past path gray, future path light gray
     frames.append(go.Frame(
         data=[
-            go.Scatter(x=x_full[:i+1], y=y_full[:i+1], mode='lines+markers', line=dict(color='red'), marker=dict(size=4)),
-            go.Scatter(x=[x_full[i]], y=[y_full[i]], mode='markers', marker=dict(color='red', size=12))
+            # Full past path of drone
+            go.Scatter(
+                x=x_full[:i+1],
+                y=y_full[:i+1],
+                mode='lines',
+                line=dict(color='blue')
+            ),
+
+            # Drone position
+            go.Scatter(
+                x=[x_full[i]],
+                y=[y_full[i]],
+                mode='markers',
+                marker=dict(color='red', size=12),
+                name="Drone"
+            ),
+
+            # Datum position (MOVING)
+            go.Scatter(
+                x=[C_x[i]],
+                y=[C_y[i]],
+                mode='markers',
+                marker=dict(color='green', size=10, symbol='x'),
+                name="Datum"
+            )
         ],
         name=str(i)
     ))
 
+    
 # -----------------------------
 # 5️⃣ Create base figure
 # -----------------------------
