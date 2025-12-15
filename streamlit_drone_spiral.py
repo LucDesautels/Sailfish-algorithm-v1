@@ -194,13 +194,12 @@ fig = go.Figure(
             marker=dict(color='green', size=10, symbol='x'),
             name='Datum'
         ),
-        fig.add_trace(
-    go.Scatter(
-        x=x_rel + C_x,
-        y=y_rel + C_y,
-        mode='lines',
-        line=dict(color='gray', dash='dot'),
-        name='Spiral (datum frame)'
+        go.Scatter(
+            x=x_rel + C_x,
+            y=y_rel + C_y,
+            mode='lines',
+            line=dict(color='gray', dash='dot'),
+            name='Spiral (datum frame)'
     )
 )
 
