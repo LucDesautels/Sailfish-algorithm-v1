@@ -164,19 +164,56 @@ for i in range(len(t_full)):
 # -----------------------------
 fig = go.Figure(
     data=[
-        go.Scatter(x=x_full, y=y_full, mode='lines', line=dict(color='gray', dash='dot'), name='Full path'),
-        go.Scatter(x=[H_x], y=[H_y], mode='markers', marker=dict(color='black', size=10, symbol='square'), name='Home'),
-        go.Scatter(x=[C0_x], y=[C0_y], mode='markers', marker=dict(color='black', size=12, symbol='star'), name='Datum start')
+        # Full planned path
+        go.Scatter(
+            x=x_full,
+            y=y_full,
+            mode='lines',
+            line=dict(color='gray', dash='dot'),
+            name='Planned path'
+        ),
+
+        # Home
+        go.Scatter(
+            x=[H_x],
+            y=[H_y],
+            mode='markers',
+            marker=dict(color='black', size=10, symbol='square'),
+            name='Home'
+        ),
+
+        # Initial datum position
+        go.Scatter(
+            x=[C0_x],
+            y=[C0_y],
+            mode='markers',
+            marker=dict(color='green', size=10, symbol='x'),
+            name='Datum'
+        ),
     ],
     layout=go.Layout(
-        title="Drone Spiral Animation",
-        xaxis=dict(title="X (m)", scaleanchor="y", scaleratio=1),
-        yaxis=dict(title="Y (m)"),
-        updatemenus=[dict(type="buttons",
-                          buttons=[dict(label="Play", method="animate", args=[None, {"frame": {"duration":50, "redraw": True}, "fromcurrent": True, "mode": "immediate"}])])]
+        title="Drone Spiral with Moving Datum",
+        xaxis=dict(title="X (m)", scaleanchor="y", scaleratio=1, showgrid=True),
+        yaxis=dict(title="Y (m)", showgrid=True),
+        height=800,
+        updatemenus=[dict(
+            type="buttons",
+            buttons=[dict(
+                label="Play",
+                method="animate",
+                args=[None, {
+                    "frame": {"duration": 50, "redraw": True},
+                    "fromcurrent": True,
+                    "mode": "immediate"
+                }]
+            )]
+        )]
     ),
     frames=frames
 )
+## RE Add Here.
+
+
 fig.update_layout(
     xaxis=dict(
         showgrid=True,
