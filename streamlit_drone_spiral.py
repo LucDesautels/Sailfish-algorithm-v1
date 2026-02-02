@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 st.set_page_config(layout="wide")
 
 # -----------------------------
-# 1️⃣ User Inputs
+# 1️. Variables D'entree
 # -----------------------------
 st.sidebar.header("Parameters")
 
@@ -33,7 +33,7 @@ C0_y = st.sidebar.number_input("Datum start Y (m)", value=0.0)
 
 
 # -----------------------------
-# 2️⃣ Spiral / path functions
+# 2️. Trajectoire Spirale
 # -----------------------------
 def theta_derivative(theta, U, r, b):
     return U / np.sqrt(r**2 + b**2)
@@ -125,9 +125,9 @@ def compute_full_path(params):
 
     return t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel, x_base, y_base
 
-# -----------------------------
-# 3️⃣ Precompute full path
-# -----------------------------
+#==========
+# 3. Calcules EDO
+#=========
 params = {
     'U': U, 'r0': r0, 'b': b,
     'v_c': np.array([current_x, current_y]),
@@ -140,7 +140,7 @@ params = {
 t_full, x_full, y_full, outbound_idx, spiral_idx, return_idx, C_x, C_y, x_rel, y_rel, x_base, y_base= compute_full_path(params)
 
 # -----------------------------
-# 4️⃣ Create Plotly animation frames
+# 4. Animation
 # -----------------------------
 
 #frames = []
@@ -157,25 +157,25 @@ frames = []
 for i in range(len(t_full)):
     frames.append(go.Frame(
         data=[
-            # 0️⃣ Drone path up to time i
+            #  Drone path up to time i
             go.Scatter(
                 x=x_full[:i+1],
                 y=y_full[:i+1]
             ),
 
-            # 1️⃣ Drone marker
+            # Drone marker
             go.Scatter(
                 x=[x_full[i]],
                 y=[y_full[i]]
             ),
 
-            # 2️⃣ Datum marker
+            # Datum marker
             go.Scatter(
                 x=[C_x[i]],
                 y=[C_y[i]]
             ),
 
-            # 3️⃣ Ideal spiral translated rigidly
+            # Ideal spiral translated rigidly
             go.Scatter(
                 x=x_base + C_x[i],
                 y=y_base + C_y[i]
@@ -187,11 +187,11 @@ for i in range(len(t_full)):
 
     
 # -----------------------------
-# 5️⃣ Create base figure
+# 5️. Figure de base
 # -----------------------------
 fig = go.Figure(
     data=[
-        # 0️⃣ Actual drone path (initially empty)
+        # Actual drone path (initially empty)
         go.Scatter(
             x=[],
             y=[],
@@ -200,7 +200,7 @@ fig = go.Figure(
             name="Drone path"
         ),
 
-        # 1️⃣ Drone marker
+        #  Drone marker
         go.Scatter(
             x=[x_full[0]],
             y=[y_full[0]],
@@ -209,7 +209,7 @@ fig = go.Figure(
             name="Drone"
         ),
 
-        # 2️⃣ Datum marker
+        # Datum marker
         go.Scatter(
             x=[C_x[0]],
             y=[C_y[0]],
@@ -218,7 +218,7 @@ fig = go.Figure(
             name="Datum"
         ),
 
-        # 3️⃣ Ideal spiral (datum frame, initial position)
+        # Ideal spiral (datum frame, initial position)
         go.Scatter(
             x=x_base + C_x[0],
             y=y_base + C_y[0],
@@ -245,9 +245,7 @@ fig = go.Figure(
         )]
     )
 )
-
-## RE Add Here.
-
+## removed previously
 fig.frames = frames
 
 fig.update_layout(
